@@ -3,9 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <title>SproutTime</title>
 </head>
 <body>
-    
+    <h1 style = "color:mediumseagreen;">Sprout Time!</h1>
+    <div class = "timing">
+        <input type = "number" id = "hour" min = "0" step = "1" placeholder="hh">
+    </input>
+        <h2 class="colon"> : </h2>
+        <input type = "number" id = "min" min = "0"step = "1" placeholder="mm">
+    </input>
+        <h2 class="colon"> : </h2>
+        <input type = "number" id = "sec" min = "0"step = "1" placeholder="ss">
+    </input>
+    </div>
+
+    <div class = "timerButtons">
+        <button id = "start" onclick="startTime()">Start</button>
+        <button id = "reset" onclick="resetTime()">Reset</button>
+    </div>
 </body>
 </html>
