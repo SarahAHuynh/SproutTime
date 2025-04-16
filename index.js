@@ -4,7 +4,7 @@ const minContainer = document.querySelector("#min");
 const secContainer = document.querySelector("#sec");
 
 // as there is only one h1 so this won't be any problem
-const header = document.querySelector("h1");
+const header = document.querySelector("#main-header");
 
 // this is the timer in seconds 
 let timer_set = 0;
@@ -14,32 +14,35 @@ let hour = 0;
 let min = 0;
 let sec = 0;
 
+// this is to stop the interval to terminate it
+let interval;
+
 // if user updates these when editable then check if set >= 60 and stop them from doing that 
 minContainer.addEventListener("change", () => {
     min = parseInt(minContainer.value);
     if (min >= 60) {
-        hour = Math.floor(hour + min / 60);
+        hour += Math.floor(min / 60);
         min = min % 60;
     }
-    updateUI;
+    updateUI();
 });
 
 secContainer.addEventListener("change", () => {
     sec = parseInt(secContainer.value);
     if (sec >= 60) {
-        min = Math.floor(min + sec / 60);
+        min += Math.floor(sec / 60);
         sec = sec % 60;
-        if (min > 60) {
-            hour = Math.floor(hour + min / 60);
+        if (min >= 60) {
+            hour += Math.floor(min / 60);
             min = min % 60;
         }
     }
-    updateUI;
+    updateUI();
 });
 
 hourContainer.addEventListener("change", () => {
     hour = parseInt(hourContainer.value);
-    updateUI;
+    updateUI();
 });
 
 // updates UI with new changed time values
@@ -55,12 +58,13 @@ const resetTime = () => {
     min = 0;
     sec = 0;
     timer_set = 0;
+    if (interval) {
+        clearInterval(interval);
+    }
     hourContainer.removeAttribute("readonly");
     minContainer.removeAttribute("readonly");
     secContainer.removeAttribute("readonly");
-    hourContainer = "";
-    minContainer = "";
-    secContainer = "";
+    updateUI();
 }
 
 // function to call when start button clicked
@@ -75,32 +79,37 @@ const startTime = () => {
 
 // function that countdowns the timer
 const startTicking = () => {
-    setInterval(() => {
-        timer_set -= 1;
-        updateCountDownTime;
-    }, 1000);
-};
+    if (timer_set > 0) {
+        interval = setInterval(() => {
+
+            if (timer_set <= 0) {
+                clearInterval(interval);
+                endTicking();
+            }
+            timer_set -=1;
+            updateCountDownTime();
+        }, 1000)
+    } else {
+        endTicking();
+    }
+}
 
 const updateCountDownTime = () => {
-    sec = timer_set & 60;
+    sec = timer_set % 60;
     min = Math.floor(timer_set / 60);
     hour = Math.floor(min /60);
     min = min % 60;
-    updateUI;
+    updateUI();
 }
 
-// as there is only one h1 so this won't be any problem, I got the h1
-// of the app
-const header = document.querySelector("h1");
-
 const endTicking = () => {
-    header.innerText = "Time's Up!!"
-    var audio = new Audio('');
+    header.innerHTML = "Time's Up!";
+    const audio = new Audio('lofiTimer.mp3');
     audio.play();
-    setTimeout(() => {
-        header.innerText = "Timer app"
-    }, 3000)
 
-    resetTime();
+    setTimeout(() => {
+        header.innerHTML = "Sprout Time!";
+        resetTime();
+    }, 3000);
 }
 
