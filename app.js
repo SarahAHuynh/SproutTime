@@ -68,9 +68,18 @@ const toggleTimer = () => {
         clearInterval(interval);
         interval = null;
         startBtn.textContent = "Start";
+        startBtn.classList.remove("active");
+
+        setControlsDisabled(false); // re-enable buttons
+
         hourContainer.removeAttribute("readonly");
         minContainer.removeAttribute("readonly");
         secContainer.removeAttribute("readonly");
+
+        // Remove enlarged state from containers
+        [hourContainer, minContainer, secContainer].forEach(container => {
+            container.classList.remove("enlarged");
+        });
     } else {
         // if not running, start it 
         hourContainer.setAttribute("readonly", "true");
@@ -79,6 +88,9 @@ const toggleTimer = () => {
         
         timer_set = hour * 3600 + min * 60 + sec;
         startBtn.textContent = "Stop";
+        startBtn.classList.add("active");
+
+        setControlsDisabled(true); // disable buttons
         startTicking();
     }
 };
@@ -90,13 +102,27 @@ const resetTime = () => {
     }
 
     startBtn.textContent = "Start";
+    startBtn.classList.remove("active");
     interval = null;
 
     timer_set = 0;
     hourContainer.removeAttribute("readonly");
     minContainer.removeAttribute("readonly");
     secContainer.removeAttribute("readonly");
-    
+
+    // Remove enlarged state from containers
+    [hourContainer, minContainer, secContainer].forEach(container => {
+        container.classList.remove("enlarged");
+    });
+
+    // Flash active state on reset button
+    const resetBtn = document.getElementById("reset");
+    resetBtn.classList.add("active");
+    setTimeout(() => {
+        resetBtn.classList.remove("active");
+    }, 300);
+
+    setControlsDisabled(false);
     loadTime(currentMode);
 };
  
@@ -106,6 +132,11 @@ let interval;
 const startTicking = () => {
     if (timer_set > 0) {
     interval = setInterval(() => {
+        // Enlarge timer containers
+        [hourContainer, minContainer, secContainer].forEach(container => {
+            container.classList.add("enlarged");
+        });
+        
         timer_set -= 1;
 
         if (timer_set <= 0) {
@@ -140,16 +171,19 @@ const endTicking = () => {
     interval = null;
 
     // reset Start button
-    document.getElementById("start").textContent = "Start";
+    const startBtn = document.getElementById("start");
+    startBtn.textContent = "Start";
+    startBtn.classList.remove("active");
 
     // re-enable input fields
     hourContainer.removeAttribute("readonly");
     minContainer.removeAttribute("readonly");
     secContainer.removeAttribute("readonly");
 
+    setControlsDisabled(false);
     // reset values to current mode
     loadTime(currentMode);
-}
+};
 
 // load saved or default time for a mode
 const loadTime = (mode) => {
@@ -167,16 +201,30 @@ const saveTime = (mode) => {
     sessionStorage.setItem(mode, JSON.stringify({ hour, min, sec }));
 };
 
+// disable buttons when timer is running 
+const setControlsDisabled = (disabled) => {
+    document.querySelectorAll(".mode-btn, #reset, #resetDefaults").forEach(btn => {
+        btn.disabled = disabled;
+        btn.style.opacity = disabled;
+        btn.style.pointerEvents = disabled ? "0.5" : "1";
+    });
+};
+
+const updateActiveModeUI = () => {
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.id === currentMode);
+    });
+    // Remove active state from defaults button when a mode is selected
+    document.getElementById("resetDefaults").classList.remove("active");
+};
+
 // handle mode button clicks
 document.querySelectorAll(".mode-btn").forEach(btn => {
     btn.addEventListener("click", () => {
         saveTime(currentMode); // save old mode time
-
         currentMode = btn.id;
-        document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
         loadTime(currentMode); // load new mode time
+        updateActiveModeUI();
     });
 });
 
@@ -186,7 +234,19 @@ document.getElementById("resetDefaults").addEventListener("click", () => {
 
     // reload current mode with default time
     loadTime(currentMode);
-})
+    
+    // Add active state to defaults button and remove from mode buttons
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.remove("active");
+    });
+    document.getElementById("resetDefaults").classList.add("active");
+    
+    // Remove active state after a short delay
+    setTimeout(() => {
+        document.getElementById("resetDefaults").classList.remove("active");
+        updateActiveModeUI();
+    }, 1000);
+});
 
 // Start/Reset button listeners
 document.addEventListener("DOMContentLoaded", () => {
@@ -194,7 +254,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("reset").addEventListener("click", resetTime);
     
     // initial load
-    document.getElementById("sprouting").classList.add("active");
-    loadTime(currentMode);
+    currentMode = "sprouting";
+    loadTime(currentMode); 
+    updateActiveModeUI();
 });
   

@@ -19,14 +19,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px; 
+  margin-bottom: 10px; 
 }
 
 #main-header {
     font-size: 7rem;
     color: mediumseagreen;
     margin-bottom: 20px;
-    margin-top: 50px;
+    margin-top: 30px;
     text-align: center;
 }
 
@@ -77,7 +77,7 @@
   justify-content: center;
   display: flex;
   gap: 50px;
-  margin-top: 80px;
+  margin-top: 25px;
   margin-bottom: 50px;
 }
 
@@ -89,12 +89,22 @@
   font-size: 1.75rem;
   color: darkslateblue;
   background-color: powderblue;
-  
   border-width: 5px;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   font-size: 1.75rem;
   border-radius: 15px;
+}
+
+.default-btn:hover {
+  background-color: cornflowerblue;
+}
+
+.default-btn.active {
+  background: cornflowerblue;
+  color: darkslateblue;
+  box-shadow: 0 0 10px rgba(0, 0, 139, 0.3);
+  transform: scale(1.05);
 }
 
 .mode-btn {
@@ -105,7 +115,6 @@
   font-size: 1.75rem;
   color: #979A98;
   background-color: #E6E6E6;
-  
   border-width: 5px;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
@@ -118,18 +127,16 @@
   color: black;
 }
 
-.mode-btn:active{
-  background: #B5B6B5;
-  color: black;
-}
-
-.mode-btn:active:hover {
-  background-color: #B5B6B5;
+.mode-btn.active {
+  background: #90EE90;
+  color: #2E8B57;
+  box-shadow: 0 0 10px rgba(46, 139, 87, 0.3);
+  transform: scale(1.05);
 }
 
 .timerSection {
   background-color: mediumseagreen;
-  padding: 40px;
+  padding: 10px;
   border-radius: 50px;
   display: flex;
   flex-direction: column;
@@ -138,6 +145,7 @@
   max-width: 800px;
   width: 90%;
   margin: 0 auto;
+  margin-bottom: 0px;
 }
 
 .timing {
@@ -147,7 +155,7 @@
     gap: 10px;
     margin: 20px 0;
     margin-top: 30px;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     background-color: mediumseagreen;
 }
 
@@ -169,7 +177,13 @@ input[type="number"] {
     overflow-y: scroll;
     border-radius: 20px;
     background-color: lightgreen;
-  }
+    transition: all 0.3s ease-in-out;
+}
+
+input[type="number"].enlarged {
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(46, 139, 87, 0.3);
+}
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -182,7 +196,7 @@ input[type="number"] {
 }
 
 input[readonly] {
-    background-color: mediumseagreen;
+    background-color: #35E475;
   }
 
 .timer-btn {
@@ -193,7 +207,6 @@ input[readonly] {
     font-size: 1.5rem;
     color: peru;
     background-color: bisque;
-    
     border-width: 5px;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
@@ -203,8 +216,22 @@ input[readonly] {
 
 .timer-btn:hover {
     background: saddlebrown;
+    color: bisque;
 }
 
+.timer-btn.active {
+    background: saddlebrown;
+    color: bisque;
+    box-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+    transform: scale(1.05);
+}
+
+#smiskiGardening {
+  display: block;
+  width: 250px;
+  height: auto;
+  margin-top: 0px;
+}
 @media screen and (max-width: 500px) {
     .container {
       margin: 20px 10px;
