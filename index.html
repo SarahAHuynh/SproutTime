@@ -8,18 +8,31 @@
 </head>
 <body>
     <div class = "container">
-        <h1 id = "main-header">Sprout Time!</h1>
-        <div class = "timing">
-            <input type = "number" id = "hour" min = "0" step = "1" placeholder="hh"></input>
-            <h2 class="colon"> : </h2>
-            <input type = "number" id = "min" min = "0"step = "1" placeholder="mm"></input>
-            <h2 class="colon"> : </h2>
-            <input type = "number" id = "sec" min = "0"step = "1" placeholder="ss"></input>
+        <div class = "header-wrapper">
+            <div class = "character-container">
+                <img id = "smiskilooking" src = "smiskilooking.png" alt = "Smiski Looking">
+                <div class = "character-tooltip">Choose Character</div>
+            </div>
+            <h1 id = "main-header">Sprout Time!</h1>
         </div>
-
-        <div class = "timerButtons">
-            <button id = "start" onclick="startTime()">Start</button>
-            <button id = "reset" onclick="resetTime()">Reset</button>
+        <div class = "timingTypeHeaders">
+            <button id = "sprouting" class = "mode-btn">Sprouting</button>
+            <button id = "shortBreak" class = "mode-btn">Short Break</button>
+            <button id = "longBreak" class = "mode-btn">Long Break</button>
+            <button id="resetDefaults" class="default-btn">Defaults</button>
+        </div>
+        <div class = "timerSection">
+            <div class = "timing">
+                <input type = "number" id = "hour" min = "0" step = "1" placeholder="hh"></input>
+                <h2 class="colon"> : </h2>
+                <input type = "number" id = "min" min = "0"step = "1" placeholder="mm"></input>
+                <h2 class="colon"> : </h2>
+                <input type = "number" id = "sec" min = "0"step = "1" placeholder="ss"></input>
+            </div>
+            <div class = "timerButtons">
+                <button id = "start" class="timer-btn">Start</button>
+                <button id = "reset" class="timer-btn">Reset</button>
+            </div>
         </div>
     </div>
     <script src="app.js"></script>

@@ -2,9 +2,19 @@
 const hourContainer = document.querySelector("#hour");
 const minContainer = document.querySelector("#min");
 const secContainer = document.querySelector("#sec");
+const header = document.querySelector("#main-header");
 
-// as there is only one h1 so this won't be any problem
-const header = document.querySelector("h1");
+const startBtn = document.getElementById("start");
+
+// default times for each mode
+const defaultTimes = {
+    sprouting: { hour: 0, min: 25, sec: 0 },
+    shortBreak: { hour: 0, min: 5, sec: 0 },
+    longBreak: { hour: 0, min: 10, sec: 0 }
+};
+
+// this is the default mode
+let currentMode = "sprouting";
 
 // this is the timer in seconds 
 let timer_set = 0;
@@ -21,7 +31,8 @@ minContainer.addEventListener("change", () => {
         hour = Math.floor(hour + min / 60);
         min = min % 60;
     }
-    updateUI;
+    updateUI();
+    saveTime(currentMode);
 });
 
 secContainer.addEventListener("change", () => {
@@ -34,12 +45,14 @@ secContainer.addEventListener("change", () => {
             min = min % 60;
         }
     }
-    updateUI;
+    updateUI();
+    saveTime(currentMode);
 });
 
 hourContainer.addEventListener("change", () => {
     hour = parseInt(hourContainer.value);
-    updateUI;
+    updateUI();
+    saveTime(currentMode);
 });
 
 // updates UI with new changed time values
@@ -49,33 +62,44 @@ const updateUI = () => {
     secContainer.value = sec;
 }
 
+const toggleTimer = () => {
+    if (interval) {
+        // if running, stop it 
+        clearInterval(interval);
+        interval = null;
+        startBtn.textContent = "Start";
+        hourContainer.removeAttribute("readonly");
+        minContainer.removeAttribute("readonly");
+        secContainer.removeAttribute("readonly");
+    } else {
+        // if not running, start it 
+        hourContainer.setAttribute("readonly", "true");
+        minContainer.setAttribute("readonly", "true");
+        secContainer.setAttribute("readonly", "true");
+        
+        timer_set = hour * 3600 + min * 60 + sec;
+        startBtn.textContent = "Stop";
+        startTicking();
+    }
+};
+
 // function for reset button 
 const resetTime = () => {
-    hour = 0;
-    min = 0;
-    sec = 0;
+    if (interval) {
+        clearInterval(interval);
+    }
+
+    startBtn.textContent = "Start";
+    interval = null;
+
     timer_set = 0;
     hourContainer.removeAttribute("readonly");
     minContainer.removeAttribute("readonly");
     secContainer.removeAttribute("readonly");
-    hourContainer.value = "";
-    minContainer.value = "";
-    secContainer.value = "";
-    if (interval) {
-        clearInterval(interval);
-    }
+    
+    loadTime(currentMode);
 };
-
-// function to call when start button clicked
-const startTime = () => {
-    hourContainer.setAttribute("readonly", "true");
-    minContainer.setAttribute("readonly", "true");
-    secContainer.setAttribute("readonly", "true");
-
-    timer_set = hour * 60 * 60 + min * 60 + sec;
-    startTicking();
-};
-
+ 
 // this is to store the interval to terminate it 
 let interval;
 // function that countdowns the timer
@@ -96,19 +120,81 @@ const startTicking = () => {
 }   
 
 const updateCountDownTime = () => {
+    hour = Math.floor(timer_set / 3600);
+    min = Math.floor((timer_set % 3600) / 60);
     sec = timer_set % 60;
-    min = Math.floor(timer_set / 60);
-    hour = Math.floor(min /60);
-    min = min % 60;
     updateUI();
 }
 
 const endTicking = () => {
     var audio = new Audio('lofiTimer.mp3');
+    audio.volume = 1.0; // max volume
     audio.play();
+    
     setTimeout(() => {
         header.innerText = "Sprout Time!"
-    }, 3000)
+    }, 3000);
 
-    resetTime();
+    // stop timer
+    clearInterval(interval);
+    interval = null;
+
+    // reset Start button
+    document.getElementById("start").textContent = "Start";
+
+    // re-enable input fields
+    hourContainer.removeAttribute("readonly");
+    minContainer.removeAttribute("readonly");
+    secContainer.removeAttribute("readonly");
+
+    // reset values to current mode
+    loadTime(currentMode);
 }
+
+// load saved or default time for a mode
+const loadTime = (mode) => {
+    const saved = sessionStorage.getItem(mode);
+    const fallback = defaultTimes[mode];
+    const data = saved ? JSON.parse(saved) : fallback;
+    hour = data.hour;
+    min = data.min;
+    sec = data.sec;
+    updateUI();
+  };
+  
+// save current time to localStorage for the active mode
+const saveTime = (mode) => {
+    sessionStorage.setItem(mode, JSON.stringify({ hour, min, sec }));
+};
+
+// handle mode button clicks
+document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        saveTime(currentMode); // save old mode time
+
+        currentMode = btn.id;
+        document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        loadTime(currentMode); // load new mode time
+    });
+});
+
+document.getElementById("resetDefaults").addEventListener("click", () => {
+    // clear session data
+    sessionStorage.clear();
+
+    // reload current mode with default time
+    loadTime(currentMode);
+})
+
+// Start/Reset button listeners
+document.addEventListener("DOMContentLoaded", () => {
+    startBtn.addEventListener("click", toggleTimer);
+    document.getElementById("reset").addEventListener("click", resetTime);
+    
+    // initial load
+    document.getElementById("sprouting").classList.add("active");
+    loadTime(currentMode);
+});
+  

@@ -11,19 +11,133 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    background-color: #DDF9E6;
   }
 
-h1 {
+.header-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px; 
+}
+
+#main-header {
     font-size: 7rem;
     color: mediumseagreen;
     margin-bottom: 20px;
-    margin-top: 70px;
+    margin-top: 50px;
     text-align: center;
 }
 
-h2 {
+.character-container {
+  position: absolute;
+  top: 57%;
+  left: 5%;
+  transform: translateY(-50%);
+}
+
+#smiskilooking {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* hidden by default, until hovering */
+.character-tooltip {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.character-container:hover .character-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.colon {
     padding: 10px;
     text-align: center;
+}
+
+.timingTypeHeaders {
+  display: inline;
+  justify-content: center;
+  display: flex;
+  gap: 50px;
+  margin-top: 80px;
+  margin-bottom: 50px;
+}
+
+.default-btn {
+  padding: 10px 20px;
+  background: none;
+  outline: none;
+  border: none;
+  font-size: 1.75rem;
+  color: darkslateblue;
+  background-color: powderblue;
+  
+  border-width: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-size: 1.75rem;
+  border-radius: 15px;
+}
+
+.mode-btn {
+  padding: 10px 20px;
+  background: none;
+  outline: none;
+  border: none;
+  font-size: 1.75rem;
+  color: #979A98;
+  background-color: #E6E6E6;
+  
+  border-width: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  font-size: 1.75rem;
+  border-radius: 15px;
+}
+
+.mode-btn:hover {
+  background: #B5B6B5;
+  color: black;
+}
+
+.mode-btn:active{
+  background: #B5B6B5;
+  color: black;
+}
+
+.mode-btn:active:hover {
+  background-color: #B5B6B5;
+}
+
+.timerSection {
+  background-color: mediumseagreen;
+  padding: 40px;
+  border-radius: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+  max-width: 800px;
+  width: 90%;
+  margin: 0 auto;
 }
 
 .timing {
@@ -32,8 +146,9 @@ h2 {
     align-items: center;
     gap: 10px;
     margin: 20px 0;
-    margin-top: 90px;
-    margin-bottom: 90px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    background-color: mediumseagreen;
 }
 
 .timerButtons {
@@ -41,7 +156,9 @@ h2 {
     justify-content: center;
     align-items: center;
     gap: 90px;
+    margin-bottom: 20px;
 }
+
 input[type="number"] {
     border: none;
     outline: none;
@@ -49,6 +166,7 @@ input[type="number"] {
     display: block;
     width: 200px;
     text-align: center;
+    overflow-y: scroll;
     border-radius: 20px;
     background-color: lightgreen;
   }
@@ -67,14 +185,14 @@ input[readonly] {
     background-color: mediumseagreen;
   }
 
-button {
+.timer-btn {
     padding: 10px 20px;
     background: none;
     outline: none;
     border: none;
     font-size: 1.5rem;
     color: peru;
-    background-color: blanchedalmond;
+    background-color: bisque;
     
     border-width: 5px;
     cursor: pointer;
@@ -83,9 +201,8 @@ button {
     border-radius: 15px;
 }
 
-button:hover {
+.timer-btn:hover {
     background: saddlebrown;
-    border: 3px solid saddlebrown;
 }
 
 @media screen and (max-width: 500px) {
