@@ -231,7 +231,53 @@ input[readonly] {
   width: 250px;
   height: auto;
   margin-top: 0px;
+  margin-left: 7%;
+  transform: translateY(-20%);
 }
+
+#waterStream {
+  position: absolute;
+  left: 240px;
+  top: 800px;
+  width: 10px;
+  height: 0;
+  background: rgba(135, 206, 235, 0.7);
+  border-radius: 5px;
+  animation: pourWater 2s ease-out forwards;
+  z-index: 0;
+}
+
+@keyframes pourWater {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+
+  50% {
+    height: 100px;
+    opacity: 1;
+  }
+
+  100% {
+    height: 100px;
+    opacity: 0;
+  }
+}
+
+#sprout {
+  position: absolute;
+  left: 240px;
+  top: 880px;
+  width: 20px;
+  height: 20px;
+  background: green;
+  border-radius: 10px 10px 0 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  animation: transform 2s ease-in-out;
+  z-index: 1;
+}
+
 @media screen and (max-width: 500px) {
     .container {
       margin: 20px 10px;

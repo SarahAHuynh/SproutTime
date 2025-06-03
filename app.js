@@ -24,6 +24,9 @@ let hour = 0;
 let min = 0;
 let sec = 0;
 
+// growth of gardening sprout 
+//let currentGrowth = 0; // 0 to 1.5 (max)
+
 // if user updates these when editable then check if set >= 60 and stop them from doing that 
 minContainer.addEventListener("change", () => {
     min = parseInt(minContainer.value);
@@ -92,6 +95,12 @@ const toggleTimer = () => {
 
         setControlsDisabled(true); // disable buttons
         startTicking();
+
+        // start watering and sprouting loop
+        if (!watering) {
+            watering = true;
+            setTimeout(waterAndGrowLoop, 0);
+        }
     }
 };
 
@@ -100,6 +109,8 @@ const resetTime = () => {
     if (interval) {
         clearInterval(interval);
     }
+
+    watering = false;
 
     startBtn.textContent = "Start";
     startBtn.classList.remove("active");
@@ -169,6 +180,7 @@ const endTicking = () => {
     // stop timer
     clearInterval(interval);
     interval = null;
+    watering = false;
 
     // reset Start button
     const startBtn = document.getElementById("start");
@@ -214,9 +226,37 @@ const updateActiveModeUI = () => {
     document.querySelectorAll(".mode-btn").forEach(btn => {
         btn.classList.toggle("active", btn.id === currentMode);
     });
-    // Remove active state from defaults button when a mode is selected
+    // remove active state from defaults button when a mode is selected
     document.getElementById("resetDefaults").classList.remove("active");
 };
+
+let currentGrowth = 0;
+let watering = false;
+
+const waterStream = document.getElementById("waterStream");
+const sprout = document.getElementById("sprout");
+
+function waterAndGrowLoop() {
+    if (!watering) return;
+
+    // step 1: start water animation 
+    waterStream.style.animation = "none";
+    void waterStream.offsetWidth; // trigger reflow
+    waterStream.style.animation = "pourWater 2s ease-out forwards";
+
+    // step 2: after 2s (when water finishes), grow the sprout 
+    setTimeout(() => {
+        if (currentGrowth < 2) {
+            currentGrowth += 0.2;
+            sprout.style.transform = `scaleY(${currentGrowth})`;
+        }
+
+        // step 3: wait remaining time (3s) to make full cycle = 5s
+        setTimeout(() => {
+            if (watering) waterAndGrowLoop(); // repeat
+        }, 8000);
+    }, 2000); // water lasts 2 secs
+}
 
 // handle mode button clicks
 document.querySelectorAll(".mode-btn").forEach(btn => {
