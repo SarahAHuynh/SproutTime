@@ -235,17 +235,23 @@ input[readonly] {
   transform: translateY(-20%);
 }
 
-#waterStream {
+.watering-container {
+  position: relative;
+  display: inline-block;
+  width: 250px;
+}
+
+#waterFlow {
   position: absolute;
-  left: 240px;
-  top: 800px;
-  width: 10px;
+  left: 70%;
+  top: 55%;
+  width: 40px;
   height: 0;
-  background: rgba(135, 206, 235, 0.7);
-  border-radius: 5px;
+  border-radius: 100px;
   animation: pourWater 2s ease-out forwards;
   z-index: 0;
 }
+ 
 
 @keyframes pourWater {
   0% {
@@ -266,8 +272,8 @@ input[readonly] {
 
 #sprout {
   position: absolute;
-  left: 240px;
-  top: 880px;
+  left: 75%;
+  top: 83%;
   width: 20px;
   height: 20px;
   background: green;

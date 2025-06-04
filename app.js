@@ -18,14 +18,12 @@ let currentMode = "sprouting";
 
 // this is the timer in seconds 
 let timer_set = 0;
+let elapsedTime = 0;
 
 // the hour, min and second
 let hour = 0;
 let min = 0;
 let sec = 0;
-
-// growth of gardening sprout 
-//let currentGrowth = 0; // 0 to 1.5 (max)
 
 // if user updates these when editable then check if set >= 60 and stop them from doing that 
 minContainer.addEventListener("change", () => {
@@ -89,11 +87,23 @@ const toggleTimer = () => {
         minContainer.setAttribute("readonly", "true");
         secContainer.setAttribute("readonly", "true");
         
+        // Ensure we have valid numbers
+        hour = parseInt(hourContainer.value) || 0;
+        min = parseInt(minContainer.value) || 0;
+        sec = parseInt(secContainer.value) || 0;
+        
         timer_set = hour * 3600 + min * 60 + sec;
+        elapsedTime = 0; // Reset elapsed time when starting
+        
+        if (timer_set <= 0) {
+            return; // Don't start if no time is set
+        }
+        
         startBtn.textContent = "Stop";
         startBtn.classList.add("active");
 
         setControlsDisabled(true); // disable buttons
+        updateCountDownTime(); // Update display immediately
         startTicking();
 
         // start watering and sprouting loop
@@ -135,6 +145,10 @@ const resetTime = () => {
 
     setControlsDisabled(false);
     loadTime(currentMode);
+
+    elapsedTime = 0;
+    flowerStage = 1;
+    document.getElementById("flowerStage").src = flower1.png;
 };
  
 // this is to store the interval to terminate it 
@@ -142,29 +156,38 @@ let interval;
 // function that countdowns the timer
 const startTicking = () => {
     if (timer_set > 0) {
-    interval = setInterval(() => {
-        // Enlarge timer containers
-        [hourContainer, minContainer, secContainer].forEach(container => {
-            container.classList.add("enlarged");
-        });
-        
-        timer_set -= 1;
-
-        if (timer_set <= 0) {
-            endTicking();
-            clearInterval(interval);
-        }
-        updateCountDownTime();
+        interval = setInterval(() => {
+            // Enlarge timer containers
+            [hourContainer, minContainer, secContainer].forEach(container => {
+                container.classList.add("enlarged");
+            });
+            
+            if (timer_set > 0) {
+                timer_set -= 1;
+                elapsedTime += 1;
+                updateCountDownTime();
+                
+                if (timer_set <= 0) {
+                    endTicking();
+                    clearInterval(interval);
+                }
+            }
         }, 1000);
     } else {
         endTicking();
     }
-}   
+}
 
 const updateCountDownTime = () => {
     hour = Math.floor(timer_set / 3600);
     min = Math.floor((timer_set % 3600) / 60);
     sec = timer_set % 60;
+    
+    // Ensure values are not negative
+    hour = Math.max(0, hour);
+    min = Math.max(0, min);
+    sec = Math.max(0, sec);
+    
     updateUI();
 }
 
@@ -195,6 +218,7 @@ const endTicking = () => {
     setControlsDisabled(false);
     // reset values to current mode
     loadTime(currentMode);
+
 };
 
 // load saved or default time for a mode
@@ -202,10 +226,16 @@ const loadTime = (mode) => {
     const saved = sessionStorage.getItem(mode);
     const fallback = defaultTimes[mode];
     const data = saved ? JSON.parse(saved) : fallback;
+
     hour = data.hour;
     min = data.min;
     sec = data.sec;
+
     updateUI();
+
+    if (!saved) {
+        saveTime(mode);
+    }
   };
   
 // save current time to localStorage for the active mode
@@ -233,16 +263,16 @@ const updateActiveModeUI = () => {
 let currentGrowth = 0;
 let watering = false;
 
-const waterStream = document.getElementById("waterStream");
+const waterFlow = document.getElementById("waterFlow");
 const sprout = document.getElementById("sprout");
 
 function waterAndGrowLoop() {
     if (!watering) return;
 
     // step 1: start water animation 
-    waterStream.style.animation = "none";
-    void waterStream.offsetWidth; // trigger reflow
-    waterStream.style.animation = "pourWater 2s ease-out forwards";
+    waterFlow.style.animation = "none";
+    void waterFlow.offsetWidth; // trigger reflow
+    waterFlow.style.animation = "pourWater 2s ease-out forwards";
 
     // step 2: after 2s (when water finishes), grow the sprout 
     setTimeout(() => {
@@ -254,8 +284,8 @@ function waterAndGrowLoop() {
         // step 3: wait remaining time (3s) to make full cycle = 5s
         setTimeout(() => {
             if (watering) waterAndGrowLoop(); // repeat
-        }, 8000);
-    }, 2000); // water lasts 2 secs
+        }, 30000);
+    }, 3000); // water lasts 2 secs
 }
 
 // handle mode button clicks
@@ -290,12 +320,17 @@ document.getElementById("resetDefaults").addEventListener("click", () => {
 
 // Start/Reset button listeners
 document.addEventListener("DOMContentLoaded", () => {
+    watering = false;
+    currentGrowth = 0;
+    sprout.style.transform = "scaleY(0)";
+    waterFlow.style.animation = "none";
+    
     startBtn.addEventListener("click", toggleTimer);
     document.getElementById("reset").addEventListener("click", resetTime);
-    
+     
     // initial load
     currentMode = "sprouting";
     loadTime(currentMode); 
+    updateUI();
     updateActiveModeUI();
 });
-  
