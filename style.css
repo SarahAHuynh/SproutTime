@@ -270,9 +270,9 @@ input[readonly] {
   }
 }
 
-#sprout {
+/*#sprout {
   position: absolute;
-  left: 75%;
+  left: 74%;
   top: 83%;
   width: 20px;
   height: 20px;
@@ -282,6 +282,18 @@ input[readonly] {
   transform-origin: bottom;
   animation: transform 2s ease-in-out;
   z-index: 1;
+}
+*/
+
+#flowerStage {
+  position: absolute;
+  left: 70%;
+  top: 75%;
+  width: 55px;
+  height: 55px;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 1s ease-out;
 }
 
 @media screen and (max-width: 500px) {

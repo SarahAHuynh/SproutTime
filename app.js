@@ -3,6 +3,8 @@ const hourContainer = document.querySelector("#hour");
 const minContainer = document.querySelector("#min");
 const secContainer = document.querySelector("#sec");
 const header = document.querySelector("#main-header");
+const waterFlow = document.getElementById("waterFlow");
+const flowerStage = document.getElementById("flowerStage");
 
 const startBtn = document.getElementById("start");
 
@@ -21,15 +23,26 @@ let timer_set = 0;
 let elapsedTime = 0;
 
 // the hour, min and second
-let hour = 0;
-let min = 0;
-let sec = 0;
+let hour = defaultTimes.sprouting.hour;
+let min = defaultTimes.sprouting.min;
+let sec = defaultTimes.sprouting.sec;
 
 // water vars
 let currentGrowth = 0;
 let watering = false;
 let wateringInterval = null;
 let waterTimeout = null;
+
+// Add CSS for the flower stage transition
+const style = document.createElement('style');
+style.textContent = `
+    #flowerStage {
+        transform: scaleY(0);
+        transform-origin: bottom;
+        transition: transform 1.5s ease-out;
+    }
+`;
+document.head.appendChild(style);
 
 // if user updates these when editable then check if set >= 60 and stop them from doing that 
 minContainer.addEventListener("change", () => {
@@ -87,6 +100,14 @@ const toggleTimer = () => {
         [hourContainer, minContainer, secContainer].forEach(container => {
             container.classList.remove("enlarged");
         });
+
+        // Stop watering animations but keep the sprout if it has grown
+        watering = false;
+        clearInterval(wateringInterval);
+        wateringInterval = null;
+        clearTimeout(waterTimeout);
+        waterTimeout = null;
+        waterFlow.style.animation = "none";
     } else {
         // if not running, start it 
         hourContainer.setAttribute("readonly", "true");
@@ -112,14 +133,14 @@ const toggleTimer = () => {
         updateCountDownTime(); // Update display immediately
         startTicking();
 
-        // start watering and sprouting loop
-        if (!watering) {
-            watering = true;
-            waterAndGrowLoop();
-            wateringInterval = setInterval(() => {
-                if (watering) waterAndGrowLoop();
-            }, 30000);
+        // Start watering animations
+        watering = true;
+        wateringInterval = null;
+        waterTimeout = null;
+        if (currentGrowth === 0) {
+            flowerStage.style.transform = "scaleY(0)";
         }
+        waterAndGrowLoop();
     }
 };
 
@@ -136,10 +157,10 @@ const resetTime = () => {
     clearTimeout(waterTimeout);
     waterTimeout = null;
     
-    // Reset animations
+    // Reset all animations including the sprout
     waterFlow.style.animation = "none";
     currentGrowth = 0;
-    sprout.style.transform = "scaleY(0)";
+    flowerStage.style.transform = "scaleY(0)";
 
     startBtn.textContent = "Start";
     startBtn.classList.remove("active");
@@ -230,6 +251,10 @@ const endTicking = () => {
     
     // Reset water animation
     waterFlow.style.animation = "none";
+
+    currentGrowth = 0;
+    flowerStage.style.transform = "scaleY(0)";
+
     
     // reset Start button
     const startBtn = document.getElementById("start");
@@ -261,7 +286,7 @@ const loadTime = (mode) => {
     if (!saved) {
         saveTime(mode);
     }
-  };
+};
   
 // save current time to localStorage for the active mode
 const saveTime = (mode) => {
@@ -285,23 +310,45 @@ const updateActiveModeUI = () => {
     document.getElementById("resetDefaults").classList.remove("active");
 };
 
-const waterFlow = document.getElementById("waterFlow");
 const sprout = document.getElementById("sprout");
 
 function waterAndGrowLoop() {
-    // step 1: start water animation 
-    waterFlow.style.animation = "none";
-    void waterFlow.offsetWidth; // trigger reflow
-    waterFlow.style.animation = "pourWater 2s ease-out forwards";
+    if (wateringInterval !== null) return; // prevent duplicate intervals
 
-    // step 2: after 2s (when water finishes), grow the sprout 
+    // Schedule first water at 30s
     waterTimeout = setTimeout(() => {
         if (!watering) return;
-        if (currentGrowth < 2) {
-            currentGrowth += 0.2;
-            sprout.style.transform = `scaleY(${currentGrowth})`;
-        }
-    }, 2000);
+
+        startWaterAnimation(); // 🌧️ first watering at 30s
+
+        // Grow sprout after water finishes (3s later at 33s)
+        waterTimeout = setTimeout(() => {
+            if (!watering) return;
+            currentGrowth = 1;
+            flowerStage.style.transform = "scaleY(1)";
+        }, 3000); // this runs at 33s
+    }, 30000); // schedule at 30s
+
+    // Schedule recurring watering every 30s *starting at 60s*
+    wateringInterval = setTimeout(() => {
+        if (!watering) return;
+
+        // Begin repeating watering every 30s starting from 60s
+        wateringInterval = setInterval(() => {
+            if (!watering) return;
+            startWaterAnimation();
+        }, 30000);
+
+    }, 60000); // first repeat starts at 60s
+}
+
+
+// Helper function to handle water animation
+function startWaterAnimation() {
+    if (!watering) return;
+    waterFlow.style.animation = "none";
+    void waterFlow.offsetWidth; // trigger reflow
+    waterFlow.style.animation = "pourWater 3s ease-out forwards";
 }
 
 // handle mode button clicks
@@ -338,7 +385,7 @@ document.getElementById("resetDefaults").addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", () => {
     watering = false;
     currentGrowth = 0;
-    sprout.style.transform = "scaleY(0)";
+    flowerStage.style.transform = "scaleY(0)";
     waterFlow.style.animation = "none";
     
     startBtn.addEventListener("click", toggleTimer);
