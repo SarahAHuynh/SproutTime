@@ -4,7 +4,19 @@ const minContainer = document.querySelector("#min");
 const secContainer = document.querySelector("#sec");
 const header = document.querySelector("#main-header");
 const waterFlow = document.getElementById("waterFlow");
-const flowerStage = document.getElementById("flowerStage");
+const flowerImgs = [
+    "flower1.png",
+    "flower2.png",
+    "flower3.png",
+    "flower4.png"
+];
+
+const flowerSizes = [
+    {width: 55, height: 55},
+    {width: 70, height: 70},
+    {width: 85, height: 85},
+    {width: 100, height: 100},
+];
 
 const startBtn = document.getElementById("start");
 
@@ -33,16 +45,8 @@ let watering = false;
 let wateringInterval = null;
 let waterTimeout = null;
 
-// Add CSS for the flower stage transition
-const style = document.createElement('style');
-style.textContent = `
-    #flowerStage {
-        transform: scaleY(0);
-        transform-origin: bottom;
-        transition: transform 1.5s ease-out;
-    }
-`;
-document.head.appendChild(style);
+// -1 so first check always fires
+let currentFlowerStageIndex = -1;
 
 // if user updates these when editable then check if set >= 60 and stop them from doing that 
 minContainer.addEventListener("change", () => {
@@ -191,6 +195,7 @@ const resetTime = () => {
  
 // this is to store the interval to terminate it 
 let interval;
+
 // function that countdowns the timer
 const startTicking = () => {
     if (timer_set > 0) {
@@ -204,6 +209,7 @@ const startTicking = () => {
                 timer_set -= 1;
                 elapsedTime += 1;
                 updateCountDownTime();
+                updateFlowerProgress();
                 
                 if (timer_set <= 0) {
                     endTicking();
@@ -319,7 +325,7 @@ function waterAndGrowLoop() {
     waterTimeout = setTimeout(() => {
         if (!watering) return;
 
-        startWaterAnimation(); // 🌧️ first watering at 30s
+        startWaterAnimation(); // first watering at 30s
 
         // Grow sprout after water finishes (3s later at 33s)
         waterTimeout = setTimeout(() => {
@@ -350,6 +356,40 @@ function startWaterAnimation() {
     void waterFlow.offsetWidth; // trigger reflow
     waterFlow.style.animation = "pourWater 3s ease-out forwards";
 }
+
+function updateFlowerProgress() {
+    const idx = Math.min(
+        Math.floor(elapsedTime / 30),
+        flowerImgs.length - 1
+    );
+
+    if (idx !== currentFlowerStageIndex) {
+        currentFlowerStageIndex = idx;
+
+        flowerStage.src = flowerImgs[idx];
+
+        // Update size without shifting layout
+        const size = flowerSizes[idx];
+        flowerStage.style.width = size.width + "px";
+        flowerStage.style.height = size.height + "px";
+
+        // Animate scale with preserved translate
+        flowerStage.style.transition = "transform 0.6s ease";
+        flowerStage.style.transform = "scaleY(1.05)";
+        setTimeout(() => {
+            flowerStage.style.transform = "scaleY(1)";
+        }, 600);
+    }
+}
+
+function resetFlowerProgress() {
+    currentFlowerStageIndex = -1;
+    flowerStage.src = flowerImgs[0];
+    flowerStage.style.width = flowerSizes[0].width + "px";
+    flowerStage.style.height = flowerSizes[0].height + "px";
+    flowerStage.style.transform = "scaleY(0)";
+}
+
 
 // handle mode button clicks
 document.querySelectorAll(".mode-btn").forEach(btn => {
